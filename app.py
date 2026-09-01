@@ -38,13 +38,26 @@ from ml_land_predictor import land_predictor
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "uploads")
+# Vercel functions have a read-only project directory.  /tmp is writable for
+# the lifetime of a function instance, while local development keeps files in
+# the project folder.
+RUNTIME_DIR = "/tmp/nyaya-ai" if os.environ.get("VERCEL") else BASE_DIR
+app.config["UPLOAD_FOLDER"] = os.path.join(RUNTIME_DIR, "uploads")
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB max upload
-DB_PATH = os.path.join(BASE_DIR, "nyaya_ai.db")
+DB_PATH = os.path.join(RUNTIME_DIR, "nyaya_ai.db")
 
 ALLOWED_EXTENSIONS = {"pdf", "txt", "docx"}
 
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
+# The checked-in database is a local-development convenience.  A Vercel
+# function needs its own writable, ephemeral database copy in /tmp.
+if os.environ.get("VERCEL") and not os.path.exists(DB_PATH):
+    init_source = os.path.join(BASE_DIR, "nyaya_ai.db")
+    if os.path.exists(init_source):
+        import shutil
+        os.makedirs(RUNTIME_DIR, exist_ok=True)
+        shutil.copy2(init_source, DB_PATH)
 
 # ---------------------------------------------------------------------------
 # SQLite Database helpers (per-request connection via Flask g)

@@ -26,15 +26,13 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from nltk.sentiment import SentimentIntensityAnalyzer
 
-# Download required NLTK data
-for res in ['punkt', 'punkt_tab', 'stopwords', 'vader_lexicon']:
-    try:
-        nltk.data.find(f'tokenizers/{res}' if 'punkt' in res else f'corpora/{res}' if res == 'stopwords' else f'sentiment/{res}')
-    except LookupError:
-        nltk.download(res, quiet=True)
-
-# Initialize sentiment analyzer
-sia = SentimentIntensityAnalyzer()
+# NLTK's optional data files are not included in a serverless deployment.
+# Avoid downloading them while a function is starting; sentence splitting and
+# sentiment analysis already have safe fallbacks below when the data is absent.
+try:
+    sia = SentimentIntensityAnalyzer()
+except LookupError:
+    sia = None
 
 # ---------------------------------------------------------------------------
 # Training Data for ML Risk Classifier
@@ -278,7 +276,7 @@ def sentiment_analysis(text: str) -> dict:
         blob = TextBlob(text)
         polarity = blob.sentiment.polarity
         subjectivity = blob.sentiment.subjectivity
-        vader_scores = sia.polarity_scores(text)
+        vader_scores = sia.polarity_scores(text) if sia else {"compound": 0}
         return {
             "polarity": polarity,
             "subjectivity": subjectivity,
@@ -652,8 +650,8 @@ def compare_documents(text1: str, text2: str):
                 "severity": RISK_KEYWORDS.get(kw, {}).get("severity", 5)
             })
     return {
-        "doc1_stats": {"length": len(text1), "sentences": len(sent_tokenize(text1))},
-        "doc2_stats": {"length": len(text2), "sentences": len(sent_tokenize(text2))},
+        "doc1_stats": {"length": len(text1), "sentences": len(extract_sentences(text1))},
+        "doc2_stats": {"length": len(text2), "sentences": len(extract_sentences(text2))},
         "differences": diffs
     }
 
