@@ -36,7 +36,7 @@ from ml_land_predictor import land_predictor
 # App configuration
 # ---------------------------------------------------------------------------
 app = Flask(__name__)
-app.secret_key = "nyaya_ai_3_secret_key_2026"
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "uploads")
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB max upload
