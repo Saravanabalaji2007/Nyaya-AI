@@ -81,7 +81,15 @@ AREA_CONVERSIONS = {
     "cent": 435.6,         # 1 Cent = 435.6 sq.ft (100 Cents = 1 Acre)
 }
 
-MODEL_PATH = Path(__file__).parent / "models" / "land_price_model.pkl"
+PROJECT_MODEL_PATH = Path(__file__).parent / "models" / "land_price_model.pkl"
+# Vercel mounts the deployed source under /var/task as read-only. Keep the
+# bundled model there for loading, but write a retrained fallback model to the
+# function's temporary filesystem.
+MODEL_PATH = (
+    Path("/tmp/nyaya-ai/models/land_price_model.pkl")
+    if os.environ.get("VERCEL")
+    else PROJECT_MODEL_PATH
+)
 
 
 class LandPricePredictor:
@@ -192,7 +200,7 @@ class LandPricePredictor:
         self.is_trained = True
         
         # Save both pipelines
-        MODEL_PATH.parent.mkdir(exist_ok=True)
+        MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(MODEL_PATH, "wb") as f:
             pickle.dump({
                 "rf": self.rf_model,
@@ -205,8 +213,9 @@ class LandPricePredictor:
     def _initialize_or_load(self):
         """Loads trained models if available, else trains new model."""
         try:
-            if MODEL_PATH.exists():
-                with open(MODEL_PATH, "rb") as f:
+            load_path = PROJECT_MODEL_PATH if PROJECT_MODEL_PATH.exists() else MODEL_PATH
+            if load_path.exists():
+                with open(load_path, "rb") as f:
                     data = pickle.load(f)
                 if isinstance(data, dict) and "rf" in data and "gb" in data:
                     self.rf_model = data["rf"]
