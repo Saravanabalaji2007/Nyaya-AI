@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="NYAYA AI Law Firms – Find specialist advocates classified by fees, expertise, and case types.">
+    <title>Law Firms – NYAYA AI 3.0</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Navigation -->
+    <nav class="navbar glass-nav">
+        <div class="container-fluid">
+            <a class="navbar-brand brand-nav" href="/dashboard">
+                <img src="{{ url_for('static', filename='logo.jpg') }}" alt="NYAYA AI Logo" class="nav-logo">NYAYA AI
+                <span class="version-badge-sm">3.0</span>
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <span class="user-greeting">
+                    <i class="bi bi-person-circle me-1"></i>{{ session.get('user_name', 'User') }}
+                </span>
+                <a href="/dashboard" class="btn btn-outline-light btn-sm btn-nav">
+                    <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                </a>
+                <a href="/chatbot" class="btn btn-outline-light btn-sm btn-nav">
+                    <i class="bi bi-chat-dots me-1"></i>AI Chatbot
+                </a>
+                <a href="/logout" class="btn btn-outline-danger btn-sm btn-nav">
+                    <i class="bi bi-box-arrow-right me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4 px-4">
+        <!-- Page Header -->
+        <div class="text-center mb-4">
+            <div class="lawfirm-hero-icon">
+                <i class="bi bi-bank2"></i>
+            </div>
+            <h2 class="lawfirm-title">NYAYA AI Partner Law Firms</h2>
+            <p class="text-muted" style="max-width:600px;margin:0 auto;">
+                Find the right advocate for your legal document case. Our AI analyzes each lawyer's expertise to match
+                your needs.
+            </p>
+        </div>
+
+        <!-- Fee Class Filter -->
+        <div class="text-center mb-4">
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all" onclick="filterAdvocates('all', this)">
+                    <i class="bi bi-grid-3x3-gap me-1"></i>All Advocates
+                </button>
+                <button class="filter-btn" data-filter="middle" onclick="filterAdvocates('middle', this)">
+                    💰 Middle Class
+                </button>
+                <button class="filter-btn" data-filter="upper-middle" onclick="filterAdvocates('upper-middle', this)">
+                    💰💰 Upper Middle
+                </button>
+                <button class="filter-btn" data-filter="high" onclick="filterAdvocates('high', this)">
+                    💰💰💰 High Class
+                </button>
+            </div>
+        </div>
+
+        <!-- Fee Legend -->
+        <div class="glass-card mb-4" style="padding:1rem 1.5rem;">
+            <div class="d-flex justify-content-center gap-4 flex-wrap align-items-center">
+                <span class="fee-legend-item">
+                    <span class="fee-badge fee-badge-middle">Middle Class</span>
+                    <small class="text-muted">₹12,000 – ₹25,000</small>
+                </span>
+                <span class="fee-legend-item">
+                    <span class="fee-badge fee-badge-upper-middle">Upper Middle</span>
+                    <small class="text-muted">₹18,000 – ₹35,000</small>
+                </span>
+                <span class="fee-legend-item">
+                    <span class="fee-badge fee-badge-high">High Class</span>
+                    <small class="text-muted">₹40,000 – ₹1,00,000</small>
+                </span>
+            </div>
+        </div>
+
+        <!-- Advocate Cards Grid -->
+        <div class="row g-4" id="advocateGrid">
+            {% for adv in advocates %}
+            <div class="col-lg-4 col-md-6 advocate-card-col" data-fee-class="{{ adv.fee_class_tag }}">
+                <div class="glass-card advocate-card">
+                    <!-- Card Header -->
+                    <div class="advocate-card-header">
+                        <div class="advocate-avatar"
+                            style="background: linear-gradient(135deg, {{ adv.color }}, {{ adv.color }}88);">
+                            <i class="bi {{ adv.icon }}"></i>
+                        </div>
+                        <div class="advocate-info">
+                            <h5 class="advocate-name">{{ adv.name }}</h5>
+                            <span class="advocate-spec">{{ adv.specialization }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Fee & Class Badge -->
+                    <div class="advocate-fee-section">
+                        <div class="advocate-fee-amount">
+                            <i class="bi bi-currency-rupee"></i>{{ adv.fees_range }}
+                        </div>
+                        <span class="fee-badge fee-badge-{{ adv.fee_class_tag }}">{{ adv.fee_class }}</span>
+                    </div>
+
+                    <!-- Stats Row -->
+                    <div class="advocate-stats">
+                        <div class="advocate-stat">
+                            <i class="bi bi-clock-history"></i>
+                            <span>{{ adv.experience }}</span>
+                        </div>
+                        <div class="advocate-stat">
+                            <i class="bi bi-trophy"></i>
+                            <span>{{ adv.success_rate }} Success</span>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <p class="advocate-desc">{{ adv.description }}</p>
+
+                    <!-- Case Types Tags -->
+                    <div class="advocate-case-types">
+                        {% for case in adv.case_types %}
+                        <span class="case-type-tag">{{ case }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- AI Match Analysis -->
+                    <div class="ai-analysis-box">
+                        <div class="ai-analysis-header">
+                            <i class="bi bi-robot me-1"></i>AI Analysis
+                        </div>
+                        <p class="ai-analysis-text">{{ adv.ai_match }}</p>
+                    </div>
+
+                    <!-- Contact Button -->
+                    <button class="btn btn-primary btn-glow w-100 mt-3"
+                        onclick="showContactModal('{{ adv.name }}', '{{ adv.specialization }}', '{{ adv.fees_range }}')">
+                        <i class="bi bi-telephone me-2"></i>Contact Advocate
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- No Results Message -->
+        <div class="glass-card text-center py-5 mt-4" id="noResults" style="display:none;">
+            <i class="bi bi-search" style="font-size:2.5rem;color:var(--accent-primary);"></i>
+            <h5 class="mt-3">No advocates found in this category</h5>
+            <p class="text-muted">Try selecting a different fee class filter.</p>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content"
+                style="background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:var(--radius);">
+                <div class="modal-header" style="border-bottom:1px solid var(--glass-border);">
+                    <h5 class="modal-title" id="modalTitle">
+                        <i class="bi bi-telephone-fill me-2" style="color:var(--accent-primary);"></i>Contact Advocate
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <div class="advocate-avatar mx-auto mb-3"
+                            style="width:64px;height:64px;font-size:1.5rem;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+                        <h5 id="modalAdvName" class="mb-1"></h5>
+                        <p id="modalAdvSpec" class="text-muted mb-1"></p>
+                        <p id="modalAdvFees" style="color:var(--accent-primary);font-weight:600;"></p>
+                    </div>
+                    <div class="glass-card" style="padding:1rem;">
+                        <p class="mb-2"><i class="bi bi-telephone me-2 text-success"></i><strong>Phone:</strong>
+                            +91-XXXXX-XXXXX</p>
+                        <p class="mb-2"><i class="bi bi-envelope me-2 text-info"></i><strong>Email:</strong>
+                            advocate@nyayaai.com</p>
+                        <p class="mb-2"><i class="bi bi-geo-alt me-2 text-warning"></i><strong>Office:</strong> Legal
+                            Chambers, Court Complex</p>
+                        <p class="mb-0"><i class="bi bi-clock me-2 text-muted"></i><strong>Available:</strong> Mon–Sat,
+                            10 AM – 6 PM</p>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid var(--glass-border);">
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Close</button>
+                    <a href="/chatbot" class="btn btn-primary btn-glow btn-sm">
+                        <i class="bi bi-chat-dots me-1"></i>Ask AI Chatbot
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function filterAdvocates(feeClass, btn) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const cards = document.querySelectorAll('.advocate-card-col');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                if (feeClass === 'all' || card.dataset.feeClass === feeClass) {
+                    card.style.display = '';
+                    card.style.animation = 'fade-in 0.4s ease';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            document.getElementById('noResults').style.display = visibleCount === 0 ? '' : 'none';
+        }
+
+        function showContactModal(name, spec, fees) {
+            document.getElementById('modalAdvName').textContent = name;
+            document.getElementById('modalAdvSpec').textContent = spec;
+            document.getElementById('modalAdvFees').textContent = 'Fees: ' + fees;
+            new bootstrap.Modal(document.getElementById('contactModal')).show();
+        }
+
+        // Animate cards on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.advocate-card');
+            cards.forEach((card, i) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 * i);
+            });
+        });
+    </script>
+</body>
+
+</html>

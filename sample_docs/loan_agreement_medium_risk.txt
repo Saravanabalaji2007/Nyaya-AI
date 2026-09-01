@@ -1,0 +1,22 @@
+PERSONAL & VEHICLE LOAN AGREEMENT (MODERATE CHARGES & SPREAD RESET)
+Risk Rating: 🟡 Medium Risk (~52%) | NYAYA AI 3.0 Benchmark Document
+Contains 2.5% processing fee, 24% annual penal interest, and lender spread reset rights.
+======================================================================
+
+RETAIL TERM LOAN CONTRACT (CONTRACT NO: RL/2026/7723)
+BETWEEN: QuickCredit Commercial Finance Ltd. (NBFC) AND Mr. Karthikeyan Murugan (Borrower).
+
+1. LOAN AMOUNT & MARGIN SPREAD:
+Sanctioned principal: Rs. 6,00,000 at 12.5% interest per annum for a 36-month tenure. The Lender reserves the right to reset the benchmark spread annually based on market liquidity.
+
+2. PROCESSING & ADMINISTRATIVE LEVIES:
+Upfront processing deduction of 2.5% (Rs. 15,000) + documentation fee of Rs. 3,500 shall be deducted directly from the disbursal sum.
+
+3. LATE EMI PENAL CHARGES:
+Overdue installments will incur a penal interest of 24% per annum (2% per month) plus bounce charges of Rs. 750 per dishonored NACH mandate.
+
+4. PRE-CLOSURE CHARGES:
+Foreclosure of the loan within 12 months is subject to a 3% pre-closure fee on the outstanding principal balance.
+
+5. JURISDICTION:
+Governed by the laws of India with jurisdiction in the competent courts of Coimbatore, Tamil Nadu.

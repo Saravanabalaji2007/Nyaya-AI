@@ -1,0 +1,101 @@
+NYAYA AI 3.0 - Tamil Nadu Land Registration Fraud Verification Database
+=========================================================================
+
+DEMO DATABASE RECORD SUMMARY & ENHANCED VERIFICATION MATRIX
+
+Use these records in the Land Registration Verification Form on the Dashboard to test land title validation, encumbrance alerts, and fraud detection capabilities:
+
+=====================================================
+1. RECORD ONE (Perfect Match - Low Risk)
+----------------------------------
+District:      Chennai
+Patta:         1001
+Owner Name:    muthu (Muthu Ramanathan)
+Survey Number: 12/1
+Taluk:         Mylapore
+Land Type:     Residential Plot (2,400 Sq.Ft)
+Encumbrance:   Clean Title
+Expected:      LOW FRAUD RISK (Verified & Matched)
+
+=====================================================
+2. RECORD TWO (Agricultural Land - Low Risk)
+----------------------------------
+District:      Coimbatore
+Patta:         1002
+Owner Name:    karthik (Karthik Subramanian)
+Survey Number: 45/2
+Taluk:         Singanallur
+Land Type:     Nanjai Agricultural Land (1.5 Acres)
+Encumbrance:   Clean Title
+Expected:      LOW FRAUD RISK (Verified & Matched)
+
+=====================================================
+3. RECORD THREE (Commercial Property - Mortgage Alert)
+----------------------------------
+District:      Madurai
+Patta:         1003
+Owner Name:    saravanan (Saravanan Natarajan)
+Survey Number: 78/3
+Taluk:         Madurai North
+Land Type:     Commercial Site (4,500 Sq.Ft)
+Encumbrance:   ALERT: Mortgaged to State Bank of India
+Expected:      MEDIUM RISK (Bank Lien / Encumbrance Warning)
+
+=====================================================
+4. RECORD FOUR (Residential Plot - Low Risk)
+----------------------------------
+District:      Trichy
+Patta:         1004
+Owner Name:    priya (Priya Sundaram)
+Survey Number: 90/4
+Taluk:         Srirangam
+Land Type:     Residential Villa Plot (3,200 Sq.Ft)
+Encumbrance:   Clean Title
+Expected:      LOW FRAUD RISK (Verified & Matched)
+
+=====================================================
+5. RECORD FIVE (Litigation Warning - Court Case Alert)
+----------------------------------
+District:      Salem
+Patta:         1005
+Owner Name:    anandhi (Anandhi Krishnan)
+Survey Number: 11/5
+Taluk:         Salem West
+Land Type:     Punjai Land (2.2 Acres)
+Encumbrance:   WARNING: Title under Litigation (Civil Court OS 104/2023)
+Expected:      MEDIUM/HIGH RISK (Sub-Judice Dispute Warning)
+
+=====================================================
+6. RECORD SIX (Industrial Site - Kanchipuram)
+----------------------------------
+District:      Kanchipuram
+Patta:         1006
+Owner Name:    selvam (Selvam Duraisamy)
+Survey Number: 105/2A
+Taluk:         Sriperumbudur
+Land Type:     Industrial Land (5.0 Acres)
+Encumbrance:   Clean Title
+Expected:      LOW FRAUD RISK (Verified & Matched)
+
+=====================================================
+7. RECORD SEVEN (House Site - Tirunelveli)
+----------------------------------
+District:      Tirunelveli
+Patta:         1007
+Owner Name:    meenakshi (Meenakshi Sundaram)
+Survey Number: 33/7B
+Taluk:         Palayamkottai
+Land Type:     Residential House Site (1,800 Sq.Ft)
+Encumbrance:   Clean Title
+Expected:      LOW FRAUD RISK (Verified & Matched)
+
+=====================================================
+HOW TO TEST FRAUD ALERTS:
+
+1. MEDIUM RISK (Partial Mismatch / Encumbrance Alert):
+   - Enter Patta '1003' with Owner 'saravanan' & Survey '78/3' -> Triggers SBI Bank Mortgage Alert.
+   - Enter Patta '1001' with Owner 'muthu', but change Survey Number to '12/99'.
+
+2. HIGH FRAUD RISK (Fraud / Imposition Alert):
+   - Enter Patta '1001' with Survey '12/1', but change Owner Name to 'ram' or 'unknown'.
+   - Enter a non-existent Patta number like '9999' or '8888'.

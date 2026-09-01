@@ -1,0 +1,22 @@
+RESIDENTIAL TENANCY AGREEMENT (MODERATE RISK)
+Risk Rating: 🟡 Medium Risk (~45%) | NYAYA AI 3.0 Benchmark Document
+Contains mandatory painting deductions, elevated notice periods, and rent escalation clauses.
+======================================================================
+
+THIS RESIDENTIAL TENANCY AGREEMENT is executed on August 15, 2026 at Coimbatore, Tamil Nadu.
+BETWEEN: Southern Properties & Leasing LLP (Lessor) AND Mr. Arvind Swaminathan (Lessee).
+
+1. TERM & AUTOMATIC RENT ESCALATION:
+The lease tenure is 11 months. The monthly rent is Rs. 25,000. Rent shall automatically increase by 10% upon completion of 11 months without further notice or negotiation.
+
+2. SECURITY DEPOSIT & MANDATORY DEDUCTIONS:
+The Lessee shall deposit Rs. 1,50,000 as security deposit. Upon vacating, a mandatory fixed non-negotiable deduction of Rs. 25,000 will be made towards repainting and deep-cleaning, irrespective of the physical condition of the premises.
+
+3. LATE PAYMENT PENALTY:
+Rent received after the 5th of the month will attract a late payment fee of Rs. 500 per day until realization.
+
+4. TERMINATION NOTICE:
+The Lessee must provide a mandatory 3-month written notice period before vacating. Early termination by the tenant will result in forfeiture of 50% of the security deposit as termination fees.
+
+5. JURISDICTION:
+Any disputes shall be resolved in the local Civil Courts of Coimbatore, Tamil Nadu.

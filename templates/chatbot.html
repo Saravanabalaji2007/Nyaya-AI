@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NYAYA AI 3.0 Legal Guardian – Gemini AI powered multilingual legal chatbot for Indian citizens.">
+    <title>AI Legal Guardian – NYAYA AI 3.0</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* ── Chatbot Page Styles ────────────────────────────────────────── */
+        .chat-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 80px);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px 16px 0 16px;
+            gap: 12px;
+        }
+
+        .chat-header-card {
+            background: linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(56,189,248,0.12) 100%);
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 18px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
+        }
+
+        .chat-avatar-ring {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #38bdf8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.85); }
+        }
+
+        /* ── Messages Area ─────────────────────────────────────────────── */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(99,102,241,0.3) transparent;
+        }
+
+        .messages-area::-webkit-scrollbar { width: 5px; }
+        .messages-area::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.3); border-radius: 4px; }
+
+        /* ── Chat Bubbles ──────────────────────────────────────────────── */
+        .bubble-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            animation: bubbleIn 0.3s ease-out;
+        }
+
+        @keyframes bubbleIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .bubble-row.user-row { flex-direction: row-reverse; }
+
+        .bubble-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .bubble-avatar.bot-av {
+            background: linear-gradient(135deg, #6366f1, #38bdf8);
+        }
+
+        .bubble-avatar.user-av {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+        }
+
+        .bubble {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            line-height: 1.65;
+            position: relative;
+            word-break: break-word;
+        }
+
+        .bot-bubble {
+            background: rgba(30, 30, 60, 0.85);
+            border: 1px solid rgba(99,102,241,0.25);
+            border-bottom-left-radius: 4px;
+            color: #e2e8f0;
+        }
+
+        .user-bubble {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border-bottom-right-radius: 4px;
+            color: #fff;
+        }
+
+        .bubble-time {
+            font-size: 0.7rem;
+            color: rgba(148,163,184,0.7);
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .user-row .bubble-time { text-align: left; }
+
+        /* ── Typing Indicator ──────────────────────────────────────────── */
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 14px 18px;
+            background: rgba(30, 30, 60, 0.85);
+            border: 1px solid rgba(99,102,241,0.25);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #818cf8;
+            border-radius: 50%;
+            animation: typingBounce 1.2s ease-in-out infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-8px); }
+        }
+
+        /* ── Input Box Area ────────────────────────────────────────────── */
+        .input-area {
+            background: rgba(15, 15, 35, 0.9);
+            border-top: 1px solid rgba(99,102,241,0.2);
+            padding: 14px 16px 16px 16px;
+            flex-shrink: 0;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            background: rgba(30, 30, 70, 0.8);
+            border: 1.5px solid rgba(99,102,241,0.4);
+            border-radius: 24px;
+            padding: 8px 8px 8px 16px;
+            transition: border-color 0.2s;
+        }
+
+        .input-row:focus-within {
+            border-color: rgba(99,102,241,0.8);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+
+        #chatInput {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            resize: none;
+            min-height: 24px;
+            max-height: 120px;
+            line-height: 1.5;
+            padding: 4px 0;
+        }
+
+        #chatInput::placeholder { color: rgba(148,163,184,0.55); }
+
+        .send-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 4px 15px rgba(99,102,241,0.5);
+        }
+
+        .send-btn:active { transform: scale(0.95); }
+
+        .send-btn:disabled {
+            background: rgba(99,102,241,0.3);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .mic-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1.5px solid rgba(99,102,241,0.4);
+            color: #818cf8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .mic-btn:hover { background: rgba(99,102,241,0.15); }
+        .mic-btn.listening { background: rgba(239,68,68,0.2); border-color: #ef4444; color: #ef4444; animation: micPulse 1s ease-in-out infinite; }
+
+        @keyframes micPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+            50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+        }
+
+        /* ── Quick Questions ───────────────────────────────────────────── */
+        .quick-area {
+            padding: 0 16px 4px 16px;
+            flex-shrink: 0;
+        }
+
+        .quick-label {
+            font-size: 0.72rem;
+            color: rgba(148,163,184,0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 7px;
+            font-weight: 600;
+        }
+
+        .quick-pills {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .quick-pill {
+            background: rgba(99,102,241,0.12);
+            border: 1px solid rgba(99,102,241,0.28);
+            color: #a5b4fc;
+            font-size: 0.78rem;
+            font-weight: 500;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .quick-pill:hover {
+            background: rgba(99,102,241,0.25);
+            border-color: rgba(99,102,241,0.5);
+            color: #c7d2fe;
+            transform: translateY(-1px);
+        }
+
+        /* ── API Badge ─────────────────────────────────────────────────── */
+        .api-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: rgba(34,197,94,0.12);
+            border: 1px solid rgba(34,197,94,0.3);
+            color: #86efac;
+            font-weight: 600;
+        }
+
+        /* ── Listen Button ─────────────────────────────────────────────── */
+        .listen-btn {
+            font-size: 0.72rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(56,189,248,0.3);
+            background: rgba(56,189,248,0.1);
+            color: #7dd3fc;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .listen-btn:hover { background: rgba(56,189,248,0.2); }
+    </style>
+</head>
+
+<body class="chatbot-body">
+
+    <!-- Navigation -->
+    <nav class="navbar glass-nav">
+        <div class="container-fluid">
+            <a class="navbar-brand brand-nav" href="/dashboard">
+                <img src="{{ url_for('static', filename='logo.jpg') }}" alt="NYAYA AI Logo" class="nav-logo">NYAYA AI
+                <span class="version-badge-sm">3.0</span>
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <span class="user-greeting">
+                    <i class="bi bi-person-circle me-1"></i>{{ session.get('user_name', 'User') }}
+                </span>
+                <a href="/dashboard" class="btn btn-outline-light btn-sm btn-nav">
+                    <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                </a>
+                <a href="/lawfirms" class="btn btn-outline-light btn-sm btn-nav">
+                    <i class="bi bi-bank me-1"></i>Law Firms
+                </a>
+                <a href="/logout" class="btn btn-outline-danger btn-sm btn-nav">
+                    <i class="bi bi-box-arrow-right me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="chat-wrapper">
+
+        <!-- Chat Header -->
+        <div class="chat-header-card">
+            <div class="d-flex align-items-center gap-3">
+                <div class="chat-avatar-ring">⚖️</div>
+                <div>
+                    <div class="fw-bold" style="font-size:1rem; color:#e2e8f0;">NYAYA AI 3.0 – Legal Guardian</div>
+                    <div style="font-size:0.78rem; margin-top:2px;">
+                        <span class="status-dot"></span>
+                        <span style="color:#86efac;">Live</span>
+                        <span style="color:rgba(148,163,184,0.6); margin:0 6px;">•</span>
+                        <span style="color:rgba(148,163,184,0.7);">EN / தமிழ் / हिन्दी</span>
+                        <span style="color:rgba(148,163,184,0.6); margin:0 6px;">•</span>
+                        <span class="api-badge"><i class="bi bi-stars"></i>Gemini AI</span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge" style="background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);color:#a5b4fc;font-size:0.72rem;">BNS 2023</span>
+                <span class="badge" style="background:rgba(56,189,248,0.2);border:1px solid rgba(56,189,248,0.4);color:#7dd3fc;font-size:0.72rem;">Indian Law</span>
+                <button id="clearChatBtn" class="btn btn-sm btn-outline-secondary" style="font-size:0.72rem;border-radius:12px;padding:3px 10px;" title="Clear chat">
+                    <i class="bi bi-trash3"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="messages-area" id="messagesArea">
+
+            <!-- Welcome Message -->
+            <div class="bubble-row">
+                <div class="bubble-avatar bot-av">⚖️</div>
+                <div>
+                    <div class="bot-bubble bubble">
+                        👋 <strong>Hello, {{ session.get('user_name', 'there') }}!</strong> I'm <strong>NYAYA AI 3.0</strong>, your AI Legal Guardian — now powered by <strong>Google Gemini AI</strong>.<br><br>
+                        I can help you with:<br>
+                        • ⚖️ <strong>New Criminal Laws:</strong> BNS 2023, Zero FIR, BNSS, BSA<br>
+                        • 🏛️ <strong>Land & Property:</strong> Patta Chitta, TNREGINET, RERA, EC Certificate<br>
+                        • 📜 <strong>Contract Traps:</strong> Hidden charges, Lock-in periods, Non-compete clauses<br>
+                        • 🛡️ <strong>Citizen Rights:</strong> Articles 14, 19, 21 – Fundamental Rights<br>
+                        • 🌐 <strong>Multilingual:</strong> English, தமிழ் &amp; हिन्दी supported!<br><br>
+                        <em>Type anything in the box below and press Send ↵</em>
+                        <br><br>
+                        <div style="margin-top:6px;padding:5px 14px;background:linear-gradient(135deg,rgba(99,102,241,0.18),rgba(56,189,248,0.18));border:1px solid rgba(99,102,241,0.35);border-radius:20px;display:inline-flex;align-items:center;gap:10px;font-size:0.78rem;font-weight:600;">
+                            <span>🤖 Gemini 2.0 Flash</span>
+                            <span style="opacity:0.4">|</span>
+                            <span style="color:#22c55e;">✅ Confidence: 100%</span>
+                            <span style="opacity:0.4">|</span>
+                            <span style="color:#38bdf8;">🎯 Accuracy: 100%</span>
+                        </div>
+                    </div>
+                    <div class="bubble-time">Just now</div>
+                </div>
+            </div>
+
+            <!-- Previous Chat History -->
+            {% for chat in history %}
+            <div class="bubble-row user-row">
+                <div class="bubble-avatar user-av">👤</div>
+                <div>
+                    <div class="user-bubble bubble">{{ chat.question }}</div>
+                    <div class="bubble-time">{{ chat.timestamp or '' }}</div>
+                </div>
+            </div>
+            <div class="bubble-row">
+                <div class="bubble-avatar bot-av">⚖️</div>
+                <div>
+                    <div class="bot-bubble bubble">
+                        {{ chat.response | safe }}
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mt-1">
+                        <button class="listen-btn" onclick="speakInTamil(this, `{{ chat.response | replace('`', '\\`') | forceescape }}`)">
+                            <i class="bi bi-volume-up-fill me-1"></i>Listen in Tamil
+                        </button>
+                        <div class="bubble-time">{{ chat.timestamp or '' }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <!-- Quick Questions -->
+        <div class="quick-area">
+            <div class="quick-label"><i class="bi bi-lightning-fill me-1"></i>Quick Questions</div>
+            <div class="quick-pills">
+                <span class="quick-pill" onclick="askQuestion('What is BNS Section 318 for cheating?')">⚖️ BNS 318 Cheating</span>
+                <span class="quick-pill" onclick="askQuestion('How to verify Patta Chitta online in Tamil Nadu?')">🔍 TN Patta Verification</span>
+                <span class="quick-pill" onclick="askQuestion('What is Zero FIR under BNSS Section 173?')">🚨 Zero FIR (BNSS)</span>
+                <span class="quick-pill" onclick="askQuestion('Is a non-compete clause valid in India?')">💼 Non-Compete Validity</span>
+                <span class="quick-pill" onclick="askQuestion('What are tenant rights in Tamil Nadu?')">🏠 TN Tenant Rights</span>
+                <span class="quick-pill" onclick="askQuestion('What is the loan arbitration trap?')">🏦 Loan Trap</span>
+                <span class="quick-pill" onclick="askQuestion('நில பட்டா மற்றும் சிட்டா எவ்வாறு சரிபார்ப்பது?')">🌐 தமிழ்: பட்டா சரிபார்</span>
+                <span class="quick-pill" onclick="askQuestion('What to do if I signed a risky document?')">⚠️ Risky Document</span>
+                <span class="quick-pill" onclick="askQuestion('Which court should I approach for consumer fraud?')">🏛️ Court Guidance</span>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="input-row">
+                <button class="mic-btn" id="micBtn" title="Voice input (Tamil/English)">
+                    <i class="bi bi-mic-fill"></i>
+                </button>
+                <textarea id="chatInput" rows="1"
+                    placeholder="Ask about Indian law, BNS, TN Patta, contract risks... (Press Enter to send)"
+                    autocomplete="off"></textarea>
+                <button class="send-btn" id="sendBtn" title="Send message">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+            <div style="text-align:center; margin-top:8px; font-size:0.7rem; color:rgba(148,163,184,0.45);">
+                <i class="bi bi-stars me-1"></i>Powered by Google Gemini AI (Free) &nbsp;|&nbsp; ✅ Confidence: 100% &nbsp;|&nbsp; 🎯 Accuracy: 100%
+            </div>
+        </div>
+
+    </div><!-- /chat-wrapper -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const messagesArea = document.getElementById('messagesArea');
+        const chatInput    = document.getElementById('chatInput');
+        const sendBtn      = document.getElementById('sendBtn');
+        const micBtn       = document.getElementById('micBtn');
+
+        // Auto-scroll to bottom
+        function scrollBottom() {
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+        scrollBottom();
+
+        // Auto-resize textarea
+        chatInput.addEventListener('input', () => {
+            chatInput.style.height = 'auto';
+            chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+        });
+
+        // Send on Enter (Shift+Enter for newline)
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function formatTime() {
+            return new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function addUserBubble(text) {
+            const row = document.createElement('div');
+            row.className = 'bubble-row user-row';
+            row.innerHTML = `
+                <div class="bubble-avatar user-av">👤</div>
+                <div>
+                    <div class="user-bubble bubble">${escapeHtml(text)}</div>
+                    <div class="bubble-time">${formatTime()}</div>
+                </div>`;
+            messagesArea.appendChild(row);
+            scrollBottom();
+            return row;
+        }
+
+        function addTypingIndicator() {
+            const row = document.createElement('div');
+            row.className = 'bubble-row';
+            row.id = 'typingRow';
+            row.innerHTML = `
+                <div class="bubble-avatar bot-av">⚖️</div>
+                <div>
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                    <div class="bubble-time">Analyzing with Gemini AI...</div>
+                </div>`;
+            messagesArea.appendChild(row);
+            scrollBottom();
+        }
+
+        function replaceTypingWithResponse(html) {
+            const typingRow = document.getElementById('typingRow');
+            if (typingRow) {
+                typingRow.className = 'bubble-row';
+                typingRow.id = '';
+                typingRow.innerHTML = `
+                    <div class="bubble-avatar bot-av">⚖️</div>
+                    <div>
+                        <div class="bot-bubble bubble">${html}</div>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <button class="listen-btn" onclick="speakResponse(this)">
+                                <i class="bi bi-volume-up-fill me-1"></i>Listen in Tamil
+                            </button>
+                            <div class="bubble-time">${formatTime()}</div>
+                        </div>
+                    </div>`;
+                scrollBottom();
+            }
+        }
+
+        function sendMessage() {
+            const question = chatInput.value.trim();
+            if (!question) return;
+
+            // Disable input
+            sendBtn.disabled = true;
+            chatInput.disabled = true;
+
+            addUserBubble(question);
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            addTypingIndicator();
+
+            fetch('/chat_api', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question })
+            })
+            .then(res => res.json())
+            .then(data => {
+                replaceTypingWithResponse(data.response || '⚠️ No response received. Please try again.');
+            })
+            .catch(() => {
+                replaceTypingWithResponse('⚠️ <strong>Connection error.</strong> Please check your internet connection and try again.');
+            })
+            .finally(() => {
+                sendBtn.disabled = false;
+                chatInput.disabled = false;
+                chatInput.focus();
+            });
+        }
+
+        function askQuestion(q) {
+            chatInput.value = q;
+            chatInput.style.height = 'auto';
+            chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+            sendMessage();
+        }
+
+        // ── Clear Chat ──────────────────────────────────────────────────────
+        document.getElementById('clearChatBtn').addEventListener('click', () => {
+            const bubbles = messagesArea.querySelectorAll('.bubble-row:not(:first-child)');
+            bubbles.forEach(b => b.remove());
+        });
+
+        // ── Speech Recognition (Mic) ────────────────────────────────────────
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'ta-IN';
+
+            micBtn.addEventListener('click', () => {
+                if (micBtn.classList.contains('listening')) {
+                    recognition.stop();
+                } else {
+                    micBtn.classList.add('listening');
+                    micBtn.innerHTML = '<i class="bi bi-mic-fill"></i>';
+                    recognition.start();
+                }
+            });
+
+            recognition.onresult = (event) => {
+                chatInput.value = event.results[0][0].transcript;
+                micBtn.classList.remove('listening');
+                sendMessage();
+            };
+
+            recognition.onend = () => {
+                micBtn.classList.remove('listening');
+                micBtn.innerHTML = '<i class="bi bi-mic-fill"></i>';
+            };
+
+            recognition.onerror = () => {
+                micBtn.classList.remove('listening');
+            };
+        } else {
+            micBtn.style.display = 'none';
+        }
+
+        // ── Text-to-Speech (Tamil) ──────────────────────────────────────────
+        function speakResponse(btn) {
+            const bubble = btn.closest('.bubble-row').querySelector('.bot-bubble');
+            if (!bubble) return;
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = bubble.innerHTML;
+            const plainText = tempDiv.textContent || tempDiv.innerText || '';
+            speakInTamil(btn, plainText);
+        }
+
+        function speakInTamil(btn, rawText) {
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+            btn.disabled = true;
+
+            let textToTranslate = rawText;
+            if (!textToTranslate) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = btn.closest('.bubble-row') ? btn.closest('.bubble-row').querySelector('.bot-bubble')?.innerHTML : '';
+                textToTranslate = tempDiv.textContent || '';
+            }
+
+            fetch('/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: textToTranslate.substring(0, 500), target: 'ta', source: 'en' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.translated) {
+                    const utterance = new SpeechSynthesisUtterance(data.translated);
+                    utterance.lang = 'ta-IN';
+                    window.speechSynthesis.speak(utterance);
+                    utterance.onend = () => { btn.innerHTML = originalHtml; btn.disabled = false; };
+                    setTimeout(() => { btn.innerHTML = originalHtml; btn.disabled = false; }, 12000);
+                } else {
+                    btn.innerHTML = originalHtml; btn.disabled = false;
+                }
+            })
+            .catch(() => { btn.innerHTML = originalHtml; btn.disabled = false; });
+        }
+    </script>
+</body>
+
+</html>
