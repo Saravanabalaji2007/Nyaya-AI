@@ -1,34 +1,33 @@
-# Virtual Environment
-.venv/
-env/
-venv/
-ENV/
+# Environment variables
+.env
+.env.local
+.env.*.local
 
-# Python Cache
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-*.pyc
 
-# Local Environment & Secrets
-.env
-.env.local
+# Virtual environments
+venv/
+.venv/
+env/
 
-# IDE & Tool Folders
-Antigravity IDE/
+# IDE
 .vscode/
 .idea/
 
-# Database & Runtime Uploads
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Uploads
 uploads/*
 !uploads/.gitkeep
-*.db-journal
-*.db-wal
-*.db-shm
-
-# OS generated files
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-.DS_Store
