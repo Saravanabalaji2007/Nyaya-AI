@@ -1,4 +1,5 @@
 import sys
+import sys
 import os
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -6,13 +7,16 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
+app = None
+
 try:
-    from app import app as application
-    app = application
-except Exception as e:
+    from app import app as flask_app
+    app = flask_app
+
+except Exception:
     import traceback
 
-    def app(environ, start_response):
+    def handler(environ, start_response):
         error = traceback.format_exc()
         body = error.encode("utf-8")
 
@@ -25,3 +29,5 @@ except Exception as e:
         )
 
         return [body]
+
+    app = handler
